@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Clock</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      transition: background 0.5s;
+    }
+
+    body.light {
+      background: #f3f3f3;
+      color: #111;
+    }
+
+    .clock-container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 40px 60px;
+      border-radius: 20px;
+      text-align: center;
+      box-shadow: 0 0 60px #00f7ff, 0 0 20px #00f7ff inset;
+      color: #00f7ff;
+      position: relative;
+      z-index: 1;
+    }
+
+    .light .clock-container {
+      background: #fff;
+      color: #000;
+      box-shadow: 0 0 30px #aaa, 0 0 10px #ccc inset;
+    }
+
+    .clock {
+      font-size: 70px;
+      margin-bottom: 10px;
+      text-shadow: 0 0 15px #00f7ff;
+    }
+
+    .light .clock {
+      text-shadow: none;
+    }
+
+    .date {
+      font-size: 22px;
+      margin-bottom: 20px;
+      opacity: 0.9;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      background-color: #00f7ff;
+      color: #000;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #00f7ff;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 2;
+    }
+
+    .light .toggle-btn {
+      background: #333;
+      color: #fff;
+    }
+
+    .background-anim {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 247, 255, 0.15) 20%, transparent 70%);
+      animation: moveBg 15s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes moveBg {
+      0% { transform: translate(-25%, -25%) }
+      50% { transform: translate(0%, 0%) }
+      100% { transform: translate(-25%, -25%) }
+    }
+
+    .thank-you {
+      margin-top: 20px;
+      font-size: 18px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <div class="background-anim"></div>
+
+  <button class="toggle-btn" onclick="toggleTheme()">Toggle Theme</button>
+
+  <div class="clock-container">
+    <div class="clock" id="clock">--:--:-- AM</div>
+    <div class="date" id="date">Loading date...</div>
+    <select id="timezone" onchange="updateClock()">
+      <option value="default">Local Time</option>
+      <option value="America/New_York">New York</option>
+      <option value="Europe/London">London</option>
+      <option value="Asia/Kolkata">India</option>
+      <option value="Asia/Tokyo">Tokyo</option>
+      <option value="Australia/Sydney">Sydney</option>
+    </select>
+    <div class="thank-you">Thank you for using the clock!</div>
+  </div>
+
+  <audio id="toggleSound" src="https://www.soundjay.com/buttons/sounds/button-29.mp3"></audio>
+
+  <script>
+    function updateClock() {
+      const timezone = document.getElementById("timezone").value;
+      const now = timezone === 'default'
+        ? new Date()
+        : new Date(new Date().toLocaleString("en-US", { timeZone: timezone }));
+
+      let hours = now.getHours();
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+
+      const timeStr = `${String(hours).padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+      document.getElementById("clock").textContent = timeStr;
+
+      const dateOptions = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: timezone === 'default' ? Intl.DateTimeFormat().resolvedOptions().timeZone : timezone
+      };
+
+      const dateStr = now.toLocaleDateString(undefined, dateOptions);
+      document.getElementById("date").textContent = dateStr;
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      document.body.classList.toggle("dark");
+      document.getElementById("toggleSound").play();
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+
+</body>
+</html>
